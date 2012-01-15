@@ -21,7 +21,7 @@ class Comment
     public $comment_parent;
     public $user_id;
     
-    public function getSQL()
+    public function getInsertSQL()
     {
         $sql = "INSERT INTO wp_comments(
                 comment_post_id, 
@@ -52,6 +52,26 @@ class Comment
             $this->comment_parent,
             $this->user_id
         );
+        
+        return $sql;
+    }
+    
+    public static function getSelectForUpdate($id)
+    {
+        $sql = "select * 
+                from wp_comments
+                where comment_id = %d";
+        $sql = sprintf($sql, $id);
+        
+        return $sql;
+    }
+    
+    public static function getUpdateSQL($id, $content)
+    {
+        $sql = "update wp_comments
+                set comment_content = '%s'
+                where comment_id = %d";
+        $sql = sprintf($sql, $content, $id);
         
         return $sql;
     }

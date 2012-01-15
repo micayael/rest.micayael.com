@@ -7,7 +7,7 @@ use src\Entities\Comment;
 
 require_once (BASE_DIR . '/src/Entities/Comment.php');
 
-$app->get('/comentarios.{format}', function() use($app){
+$app->get('/ver-comentarios.{format}', function() use($app){
     
     $sql = "select 
             case 
@@ -27,7 +27,7 @@ $app->get('/comentarios.{format}', function() use($app){
     $comentarios = $app['db']->fetchAll($sql);
     $comentarios = utf8_converter($comentarios);
     
-    //-- Una vez encontrados los datos retornamos un código 200 - OK
+    //-- Una vez encontrados los datos retornamos un código HTTP 200 - OK
     return new Response(json_encode($comentarios), 200); 
     
 });
@@ -55,12 +55,45 @@ $app->post('/crear-comentario.{format}', function(Request $request) use($app){
     $c->comment_parent = $comment['comment_parent'];
     $c->user_id = $comment['user_id'];
     
-    $sql = $c->getSQL();
+    $sql = $c->getInsertSQL();
     
     $app['db']->exec($sql);
     
-    //-- En caso de exito retornamos el código HTTML 201 - Creado
+    //-- En caso de exito retornamos el código HTTP 201 - Creado
     return new Response('Comentario creado', 201);
+    
+});
+
+$app->put('actualizar-comentario/{id}.{format}', function($id) use($app){
+    
+    //-- Controlamos que los parámetros que deben lleguen por POST efectivamente
+    //   lleguen y en el caso de que no lo hagan enviamos un error con código 
+    //   400 - Solicitud incorrecta
+    //-- También podemos usar directamente la Injección de dependecias para 
+    //   obtener el request del contenedor a diferencia del ejemplo anterior.
+    
+    if (!$comment = $app['request']->get('comment'))
+    {
+        return new Response('Parametros insuficientes', 400);
+    }
+    
+    $sql = Comment::getSelectForUpdate($id);
+    
+    $comentario = $app['db']->fetchAll($sql);
+    
+    //-- En caso de no existir el comentario a modificar retornamos un código
+    //   HTTP 404 - No encontrado
+    if(empty($comentario))
+    {
+        return new Response('Comentario no encontrado.', 404);
+    }
+    
+    $sql = Comment::getUpdateSQL($id, $comment['comment_content']);
+    
+    $app['db']->exec($sql);
+    
+    //-- En caso de exito retornamos el código HTTP 200 - OK
+    return new Response("Comentario con ID: {$id} actualizado", 200);
     
 });
 
