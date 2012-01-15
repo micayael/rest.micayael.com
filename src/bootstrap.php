@@ -6,7 +6,7 @@ $app = new Silex\Application();
 
 $app->register(new Silex\Provider\DoctrineServiceProvider(), array(
     'db.options'        => array(
-        'driver'        => 'pdo_pgsql',
+        'driver'        => 'pdo_mysql',
         'host'          => 'localhost',
         'dbname'        => 'blog',
         'user'          => 'root',
