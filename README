@@ -1,0 +1,9 @@
+# Configuración del VirtualHost de Apache
+
+<VirtualHost *:80>
+        DocumentRoot /home/micayael/development/phpprojects/silex-projects/rest.micayael.com/web
+        ServerName local.rest.micayael.com
+        DirectoryIndex index.php
+        ErrorLog /var/log/apache2/local.rest.micayael.com-error_log
+        CustomLog /var/log/apache2/local.rest.micayael.com-access_log common
+</VirtualHost>
