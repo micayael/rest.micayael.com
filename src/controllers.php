@@ -77,7 +77,7 @@ $app->put('actualizar-comentario/{id}.{format}', function($id) use($app){
         return new Response('Parametros insuficientes', 400);
     }
     
-    $sql = Comment::getSelectForUpdate($id);
+    $sql = Comment::getSelectForExists($id);
     
     $comentario = $app['db']->fetchAll($sql);
     
@@ -96,5 +96,27 @@ $app->put('actualizar-comentario/{id}.{format}', function($id) use($app){
     return new Response("Comentario con ID: {$id} actualizado", 200);
     
 });
+
+$app->delete('eliminar-comentario/{id}.{format}', function($id) use($app){
+    
+    $sql = Comment::getSelectForExists($id);
+    
+    $comentario = $app['db']->fetchAll($sql);
+    
+    //-- En caso de no existir el comentario a eliminar retornamos un código
+    //   HTTP 404 - No encontrado
+    if(empty($comentario))
+    {
+        return new Response('Comentario no encontrado.', 404);
+    }
+    
+    $sql = Comment::getDeleteSQL($id);
+    
+    $app['db']->exec($sql);
+    
+    //-- En caso de exito retornamos el código HTTP 200 - OK
+    return new Response("Comentario con ID: {$id} eliminado", 200);
+    
+}); 
 
 return $app;

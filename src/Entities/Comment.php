@@ -56,7 +56,7 @@ class Comment
         return $sql;
     }
     
-    public static function getSelectForUpdate($id)
+    public static function getSelectForExists($id)
     {
         $sql = "select * 
                 from wp_comments
@@ -72,6 +72,15 @@ class Comment
                 set comment_content = '%s'
                 where comment_id = %d";
         $sql = sprintf($sql, $content, $id);
+        
+        return $sql;
+    }
+    
+    public static function getDeleteSQL($id)
+    {
+        $sql = "delete from wp_comments
+                where comment_id = %d";
+        $sql = sprintf($sql, $id);
         
         return $sql;
     }
